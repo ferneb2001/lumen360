@@ -207,17 +207,49 @@ document.addEventListener('DOMContentLoaded', async function() {
 </body>
 </html>
 <script>
-/* Parche LUMEN: controles nativos + loop en el video del demo (React pisa los atributos) */
-setInterval(function () {
-  document.querySelectorAll('video').forEach(function (v) {
-    if (!v.controls) v.controls = true;
-    if (!v.loop) v.loop = true;
-    v.setAttribute('playsinline', '');
-  });
-  var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  var n; while ((n = w.nextNode())) {
-    if (n.nodeValue.indexOf('· Seguridad ·') !== -1)
-      n.nodeValue = n.nodeValue.replace('· Seguridad ·', '· Seguridad informática ·');
+/* Parche LUMEN v3: controles+loop, ajuste del video al marco (gana la carrera
+   de medicion re-disparando resize), Seguridad informatica, servicios en cierre */
+(function () {
+  function ajustar() {
+    document.querySelectorAll('video').forEach(function (v) {
+      if (!v.controls) v.controls = true;
+      if (!v.loop) v.loop = true;
+      v.setAttribute('playsinline', '');
+      v.style.maxWidth = '100%';
+      v.style.maxHeight = '100%';
+      v.style.objectFit = 'contain';
+      if (!v._lumenResize) {
+        v._lumenResize = true;
+        v.addEventListener('loadedmetadata', function () {
+          window.dispatchEvent(new Event('resize'));
+        });
+      }
+    });
+    var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    var n;
+    while ((n = w.nextNode())) {
+      if (n.nodeValue.indexOf('· Seguridad ·') !== -1)
+        n.nodeValue = n.nodeValue.replace('· Seguridad ·', '· Seguridad informática ·');
+    }
+    if (!document.getElementById('lumen-servicios')) {
+      var todos = Array.prototype.slice.call(document.querySelectorAll('*'));
+      var cand = todos.filter(function (e) {
+        return e.textContent.indexOf('Mendoza, Argentina') !== -1;
+      });
+      if (cand.length) {
+        var ancla = cand[cand.length - 1];
+        var d = document.createElement('div');
+        d.id = 'lumen-servicios';
+        d.textContent = 'Soporte técnico · Seguridad informática · Equipamiento';
+        d.style.cssText = 'margin-top:10px;font-size:13px;letter-spacing:.4px;color:#9fb4d8;text-align:center;';
+        ancla.insertAdjacentElement('afterend', d);
+      }
+    }
   }
-}, 700);
+  setInterval(ajustar, 700);
+  window.addEventListener('load', function () {
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 800);
+    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 2200);
+  });
+})();
 </script>
