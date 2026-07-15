@@ -207,30 +207,51 @@ document.addEventListener('DOMContentLoaded', async function() {
 </body>
 </html>
 <script>
-/* Parche LUMEN v3: controles+loop, ajuste del video al marco (gana la carrera
-   de medicion re-disparando resize), Seguridad informatica, servicios en cierre */
+/* Parche LUMEN v5: la caja del video se dimensiona por MATEMATICA (alto de la
+   pantalla del telefono menos el resto del contenido), no por la medicion
+   fragil del deck. + controles, loop, Seguridad informatica y servicios. */
 (function () {
   function ajustar() {
     document.querySelectorAll('video').forEach(function (v) {
       if (!v.controls) v.controls = true;
       if (!v.loop) v.loop = true;
       v.setAttribute('playsinline', '');
-      v.style.maxWidth = '100%';
-      v.style.maxHeight = '100%';
-      v.style.objectFit = 'contain';
-      if (!v._lumenResize) {
-        v._lumenResize = true;
-        v.addEventListener('loadedmetadata', function () {
-          window.dispatchEvent(new Event('resize'));
-        });
+      if (!v._lumenBust) {
+        v._lumenBust = true;
+        try {
+          var u = new URL(v.currentSrc || v.src, location.href);
+          if (u.pathname.indexOf('LUMEN_demo_vertical') !== -1 && !u.search) {
+            v.src = u.pathname + '?b=2021';
+          }
+        } catch (err) {}
+      }
+      v.style.setProperty('object-fit', 'contain', 'important');
+      v.style.setProperty('max-width', '100%', 'important');
+      v.style.setProperty('max-height', '100%', 'important');
+
+      var caja = v.parentElement;               // mascara directa del video
+      if (!caja) return;
+      var pagina = caja.parentElement;          // contenido de la pagina
+      var pantalla = pagina;                    // pantalla del telefono (overflow auto)
+      while (pantalla && getComputedStyle(pantalla).overflowY !== 'auto')
+        pantalla = pantalla.parentElement;
+      if (!pantalla) return;
+
+      var resto = pagina.offsetHeight - caja.offsetHeight; // titulo + rotulos + margenes
+      var disponible = pantalla.clientHeight - resto - 12;
+      if (disponible > 200 && Math.abs(caja.offsetHeight - disponible) > 6) {
+        caja.style.setProperty('height', disponible + 'px', 'important');
+        caja.style.setProperty('max-height', disponible + 'px', 'important');
       }
     });
+
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     var n;
     while ((n = w.nextNode())) {
       if (n.nodeValue.indexOf('· Seguridad ·') !== -1)
         n.nodeValue = n.nodeValue.replace('· Seguridad ·', '· Seguridad informática ·');
     }
+
     if (!document.getElementById('lumen-servicios')) {
       var todos = Array.prototype.slice.call(document.querySelectorAll('*'));
       var cand = todos.filter(function (e) {
@@ -246,10 +267,6 @@ document.addEventListener('DOMContentLoaded', async function() {
       }
     }
   }
-  setInterval(ajustar, 700);
-  window.addEventListener('load', function () {
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 800);
-    setTimeout(function () { window.dispatchEvent(new Event('resize')); }, 2200);
-  });
+  setInterval(ajustar, 400);
 })();
 </script>
