@@ -2,7 +2,18 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Bundled Page</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Suite LUMEN 360</title>
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="LUMEN 360">
+  <meta property="og:title" content="Suite LUMEN 360">
+  <meta property="og:description" content="La suite de gestión, ventas online y auditoría para tu comercio.">
+  <meta property="og:image" content="https://ferneb2001.github.io/lumen360/uploads/og_lumen.jpg">
+  <meta property="og:url" content="https://ferneb2001.github.io/lumen360/presentacion.html">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Suite LUMEN 360">
+  <meta name="twitter:description" content="La suite de gestión, ventas online y auditoría para tu comercio.">
+  <meta name="twitter:image" content="https://ferneb2001.github.io/lumen360/uploads/og_lumen.jpg">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #faf9f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -246,5 +257,42 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   }
   setInterval(ajustar, 500);
+})();
+</script>
+<script>
+/* Musica de la demo: al ENTRAR a la pagina "Mira LUMEN funcionando" el video
+   reproduce CON sonido; al SALIR se pausa solo. Si el navegador bloquea el
+   audio sin gesto directo, cae a reproducir muteado (el usuario activa el 🔊). */
+(function () {
+  var armed = false;
+  function arm() {
+    if (armed) return;
+    var v = document.querySelector('video');
+    if (!v) return;
+    var scroll = document.querySelector('.lsScroll');
+    if (!scroll) {
+      scroll = v.parentElement;
+      while (scroll && getComputedStyle(scroll).overflowY !== 'auto') scroll = scroll.parentElement;
+    }
+    if (!scroll) return;
+    var demo = Array.prototype.slice.call(scroll.children).filter(function (p) {
+      return /Mir[aá] LUMEN funcionando/.test(p.textContent || '');
+    })[0];
+    if (!demo) return;
+    armed = true;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && e.intersectionRatio >= 0.55) {
+          v.muted = false;
+          var p = v.play();
+          if (p && p.catch) p.catch(function () { v.muted = true; v.play().catch(function () {}); });
+        } else {
+          v.pause();
+        }
+      });
+    }, { root: scroll, threshold: [0, 0.55, 1] });
+    io.observe(demo);
+  }
+  var t = setInterval(function () { arm(); if (armed) clearInterval(t); }, 400);
 })();
 </script>
