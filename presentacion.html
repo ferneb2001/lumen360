@@ -223,10 +223,20 @@ document.addEventListener('DOMContentLoaded', async function() {
      - CONTROLES + LOOP en el video (los controles permiten activar el sonido;
        NO se toca 'muted' ni se fuerza play → una vez que el usuario activa el
        audio con el botón, el sonido NO se corta).
-     - Textos: "Seguridad" -> "Seguridad informática" y la línea de servicios
-       al pie del cierre (para no regresionar respecto de la versión anterior).
+     - Textos: "Seguridad" -> "Seguridad informática" + línea de servicios al
+       pie del cierre, y AJUSTES DE PRECIO (el bundle trae precios viejos):
+       Suite 60->70, Conector ML pasa a "incluido en la Suite / sin costo
+       extra", y Auditor -> "Auditor BI solo / PnP con cualquier sistema".
    SIN cap matemático de tamaño (ese era el que dejaba el video chico). */
 (function () {
+  var swaps = [
+    ['· Seguridad ·', '· Seguridad informática ·'],
+    ['USD 60/mes', 'USD 70/mes'],
+    ['+USD 12/mes', 'Sin costo extra'],
+    ['Complemento', 'Incluido en la Suite 360'],
+    ['Auditor solo', 'Auditor BI solo'],
+    ['Solo auditoría', 'PnP con cualquier sistema']
+  ];
   function ajustar() {
     document.querySelectorAll('video').forEach(function (v) {
       if (!v.controls) v.controls = true;
@@ -237,8 +247,11 @@ document.addEventListener('DOMContentLoaded', async function() {
     var w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     var n;
     while ((n = w.nextNode())) {
-      if (n.nodeValue.indexOf('· Seguridad ·') !== -1)
-        n.nodeValue = n.nodeValue.replace('· Seguridad ·', '· Seguridad informática ·');
+      var val = n.nodeValue;
+      for (var s = 0; s < swaps.length; s++) {
+        if (val.indexOf(swaps[s][0]) !== -1) val = val.split(swaps[s][0]).join(swaps[s][1]);
+      }
+      if (val !== n.nodeValue) n.nodeValue = val;
     }
 
     if (!document.getElementById('lumen-servicios')) {
@@ -260,39 +273,104 @@ document.addEventListener('DOMContentLoaded', async function() {
 })();
 </script>
 <script>
-/* Musica de la demo: al ENTRAR a la pagina "Mira LUMEN funcionando" el video
-   reproduce CON sonido; al SALIR se pausa solo. Si el navegador bloquea el
-   audio sin gesto directo, cae a reproducir muteado (el usuario activa el 🔊). */
+/* Musica de la demo (por SONDEO, robusto al jitter del scroll-snap): si la
+   pagina "Mira LUMEN funcionando" esta centrada y el video esta pausado ->
+   reproduce (con sonido al entrar; si el navegador lo bloquea sin gesto, cae a
+   muteado y el usuario activa el 🔊). Si NO esta centrada y esta reproduciendo
+   -> se pausa sola. Auto-corrige en cada tick. */
 (function () {
-  var armed = false;
-  function arm() {
-    if (armed) return;
+  var wasIn = false;
+  function centered(demo, scroll) {
+    var dr = demo.getBoundingClientRect(), sr = scroll.getBoundingClientRect();
+    var mid = sr.top + sr.height * 0.5;
+    return dr.top < mid && dr.bottom > mid;
+  }
+  function tick() {
     var v = document.querySelector('video');
-    if (!v) return;
     var scroll = document.querySelector('.lsScroll');
-    if (!scroll) {
-      scroll = v.parentElement;
-      while (scroll && getComputedStyle(scroll).overflowY !== 'auto') scroll = scroll.parentElement;
-    }
-    if (!scroll) return;
+    if (!v || !scroll) return;
     var demo = Array.prototype.slice.call(scroll.children).filter(function (p) {
       return /Mir[aá] LUMEN funcionando/.test(p.textContent || '');
     })[0];
     if (!demo) return;
-    armed = true;
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) {
-        if (e.isIntersecting && e.intersectionRatio >= 0.55) {
-          v.muted = false;
-          var p = v.play();
-          if (p && p.catch) p.catch(function () { v.muted = true; v.play().catch(function () {}); });
-        } else {
-          v.pause();
-        }
-      });
-    }, { root: scroll, threshold: [0, 0.55, 1] });
-    io.observe(demo);
+    var inDemo = centered(demo, scroll);
+    if (inDemo) {
+      if (v.paused) {
+        if (!wasIn) v.muted = false;              // al ENTRAR probamos con sonido
+        var p = v.play();
+        if (p && p.catch) p.catch(function () { v.muted = true; v.play().catch(function () {}); });
+      }
+    } else if (!v.paused) {
+      v.pause();                                   // al SALIR se pausa sola
+    }
+    wasIn = inDemo;
   }
-  var t = setInterval(function () { arm(); if (armed) clearInterval(t); }, 400);
+  setInterval(tick, 300);
+})();
+</script>
+<script>
+/* Cartel "Tocá para el sonido": los navegadores no dejan arrancar con audio sin
+   un toque directo. Cuando estás en la demo y el video está mudo, mostramos un
+   aviso claro sobre el video; al tocarlo (gesto real) se activa el sonido. */
+(function () {
+  var cue = null;
+  function build() {
+    if (cue) return;
+    var st = document.createElement('style');
+    st.textContent = '@keyframes lumenSndPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(1.06)}}';
+    document.head.appendChild(st);
+    cue = document.createElement('button');
+    cue.id = 'lumen-sound-cue';
+    cue.type = 'button';
+    cue.textContent = '🔊 Tocá para el sonido';
+    cue.style.cssText = 'position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);' +
+      'z-index:99999;border:0;cursor:pointer;background:rgba(245,178,58,.96);color:#1c2230;' +
+      "font:600 15px/1 'Segoe UI',system-ui,sans-serif;padding:12px 20px;border-radius:999px;" +
+      'box-shadow:0 6px 18px rgba(0,0,0,.4);display:none;animation:lumenSndPulse 1.4s ease-in-out infinite;';
+    var act = function (ev) {
+      ev.preventDefault(); ev.stopPropagation();
+      var v = document.querySelector('video');
+      if (!v) return;
+      v.muted = false; v.volume = 1;
+      v.play().catch(function () {});
+      cue.style.display = 'none';
+    };
+    cue.addEventListener('click', act);
+    cue.addEventListener('touchstart', act, { passive: false });
+    document.body.appendChild(cue);
+  }
+  function tick() {
+    var v = document.querySelector('video');
+    var scroll = document.querySelector('.lsScroll');
+    if (!v || !scroll) { if (cue) cue.style.display = 'none'; return; }
+    var demo = Array.prototype.slice.call(scroll.children).filter(function (p) {
+      return /Mir[aá] LUMEN funcionando/.test(p.textContent || '');
+    })[0];
+    if (!demo) { if (cue) cue.style.display = 'none'; return; }
+    var dr = demo.getBoundingClientRect(), sr = scroll.getBoundingClientRect();
+    var mid = sr.top + sr.height * 0.5;
+    var visible = dr.top < mid && dr.bottom > mid;
+    build();
+    cue.style.display = (visible && v.muted) ? 'block' : 'none';
+  }
+  setInterval(tick, 350);
+})();
+</script>
+<script>
+/* Tope por item: el deck ya usa scroll-snap mandatory, pero sin "stop" se
+   puede saltear de largo al deslizar. Inyectamos scroll-snap-stop:always en
+   el HEAD por JS (un <style> plano en el body lo borra React al montar) y lo
+   re-inyectamos por si el helmet de React lo saca. Uno por gesto → fácil de
+   dejar centrado en cada ítem. */
+(function () {
+  function ensure() {
+    if (document.getElementById('lumen-snap-css')) return;
+    var st = document.createElement('style');
+    st.id = 'lumen-snap-css';
+    st.textContent = '.lsScroll{scroll-snap-type:y mandatory !important}.lsScroll>*{scroll-snap-stop:always !important}';
+    (document.head || document.documentElement).appendChild(st);
+  }
+  ensure();
+  setInterval(ensure, 1000);
 })();
 </script>
