@@ -28,20 +28,35 @@
 <script>
 (function () {
   function agregar() {
-    if (document.querySelector('a[data-demo10]')) return;
-    var a = document.createElement('a');
-    a.href = 'demo10.mp4';
-    a.target = '_blank';
-    a.rel = 'noopener';
-    a.setAttribute('data-demo10', '1');
-    a.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:9999;' +
-      'background:#0d1b2e;color:#fff;border:1px solid #F5A623;' +
-      'border-radius:999px;padding:10px 16px;' +
-      'font:600 14px/1 system-ui,sans-serif;text-decoration:none;' +
-      'box-shadow:0 4px 14px rgba(0,0,0,.4)';
-    a.innerHTML = '\u25B6 Ver la demo completa ' +
-      '<span style="color:#F5A623">(10 min)</span>';
-    document.body.appendChild(a);
+    if (!document.querySelector('a[data-demo10]')) {
+      var a = document.createElement('a');
+      a.href = 'demo10.mp4';
+      a.target = '_blank';
+      a.rel = 'noopener';
+      a.setAttribute('data-demo10', '1');
+      a.style.cssText = 'position:fixed;right:16px;bottom:16px;z-index:9999;' +
+        'background:#0d1b2e;color:#fff;border:1px solid #F5A623;' +
+        'border-radius:999px;padding:10px 16px;' +
+        'font:600 14px/1 system-ui,sans-serif;text-decoration:none;' +
+        'box-shadow:0 4px 14px rgba(0,0,0,.4)';
+      a.innerHTML = '\u25B6 Ver la demo completa ' +
+        '<span style="color:#F5A623">(10 min)</span>';
+      document.body.appendChild(a);
+    }
+    if (!document.querySelector('a[data-ventanilla]')) {
+      var v = document.createElement('a');
+      v.href = 'ventanilla.html';
+      v.setAttribute('data-ventanilla', '1');
+      v.style.cssText = 'position:fixed;right:16px;bottom:64px;z-index:9999;' +
+        'background:rgba(13,27,46,.92);color:#fff;' +
+        'border:1px solid rgba(255,255,255,.25);' +
+        'border-radius:999px;padding:9px 16px;' +
+        'font:600 13px/1 system-ui,sans-serif;text-decoration:none;' +
+        'box-shadow:0 4px 14px rgba(0,0,0,.4)';
+      v.innerHTML = 'Cómo trabaja el Agente ' +
+        '<span style="color:#F5A623">\u2192</span>';
+      document.body.appendChild(v);
+    }
   }
   window.addEventListener('load', function () {
     agregar();

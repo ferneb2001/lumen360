@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pedile mejoras al Agente</title>
+<meta property="og:title" content="Pedile mejoras al Agente — LUMEN 360">
+<meta property="og:description" content="Los sistemas comunes se quedan como los compraste. El Agente PRODIGIUM investiga y ejecuta: le pedís lo que tu negocio necesita, desde adentro del sistema, y cuando está listo te avisa.">
+<meta property="og:image" content="https://ferneb2001.github.io/lumen360/og.jpg">
+<meta property="og:url" content="https://ferneb2001.github.io/lumen360/ventanilla.html">
+<meta property="og:type" content="website">
+<script>window.goatcounter = {endpoint: 'https://lumen360.goatcounter.com/count'};</script>
+<script async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root {
+    --fondo: #0b1626;
+    --panel: #101f33;
+    --panel2: #142640;
+    --borde: rgba(255,255,255,.09);
+    --texto: #e8eef7;
+    --texto2: #9fb0c7;
+    --naranja: #F5A623;
+    --naranja-osc: #d98e0f;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--fondo);
+    color: var(--texto);
+    font: 400 17px/1.65 "Segoe UI", system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--naranja); }
+  .lienzo { max-width: 880px; margin: 0 auto; padding: 0 24px; }
+
+  /* barra superior, como la principal */
+  header {
+    background: #0d1b2e;
+    border-bottom: 1px solid var(--borde);
+    padding: 14px 0;
+    position: sticky; top: 0; z-index: 10;
+  }
+  header .lienzo { display: flex; align-items: center; gap: 12px; }
+  header img { width: 34px; height: 34px; border-radius: 8px; }
+  header .marca { font-weight: 700; letter-spacing: .5px; }
+  header .marca span { color: var(--texto2); font-weight: 400; }
+  header a.volver {
+    margin-left: auto; color: var(--texto2); text-decoration: none;
+    font-size: 14px; border: 1px solid var(--borde); border-radius: 999px;
+    padding: 7px 14px;
+  }
+  header a.volver:hover, header a.volver:focus-visible { color: var(--texto); border-color: var(--texto2); }
+
+  /* hero */
+  .hero { padding: 72px 0 40px; }
+  .cejilla {
+    color: var(--naranja); font-size: 13px; font-weight: 700;
+    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(34px, 6vw, 52px); line-height: 1.12;
+    font-weight: 700; text-wrap: balance; margin-bottom: 18px;
+  }
+  h1 em { font-style: normal; color: var(--naranja); }
+  .bajada { color: var(--texto2); font-size: 19px; max-width: 620px; }
+  .bajada strong { color: var(--texto); font-weight: 600; }
+
+  /* la banda, recreada tal como se ve en el sistema */
+  .demo-banda { margin: 48px auto 8px; }
+  .demo-banda .marco {
+    border: 1px solid var(--borde); border-radius: 14px;
+    background: var(--panel); padding: 18px; box-shadow: 0 12px 40px rgba(0,0,0,.35);
+  }
+  .banda {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    background: linear-gradient(90deg, rgba(245,166,35,.16), rgba(245,166,35,.05));
+    border: 1px solid rgba(245,166,35,.55); border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .banda img { width: 30px; height: 30px; border-radius: 50%; }
+  .banda .frase { font-size: 15px; }
+  .banda .frase b { color: var(--naranja); }
+  .banda .boton {
+    margin-left: auto; background: var(--naranja); color: #16233a;
+    font-weight: 700; font-size: 14px; border-radius: 8px; padding: 9px 16px;
+    white-space: nowrap;
+  }
+  /* el pedido, como una conversación */
+  .charla { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .globo {
+    max-width: 78%; border-radius: 12px; padding: 11px 15px; font-size: 15px;
+    border: 1px solid var(--borde);
+  }
+  .globo.pedido { align-self: flex-end; background: var(--panel2); border-bottom-right-radius: 4px; }
+  .globo.agente {
+    align-self: flex-start; background: rgba(245,166,35,.10);
+    border-color: rgba(245,166,35,.4); border-bottom-left-radius: 4px;
+  }
+  .globo.agente b { color: var(--naranja); }
+  .quien { font-size: 12px; color: var(--texto2); margin-bottom: 3px; }
+  .pie-demo { color: var(--texto2); font-size: 13px; text-align: center; margin-top: 14px; }
+
+  /* pasos */
+  section.pasos { padding: 56px 0 8px; }
+  h2 {
+    font-size: clamp(24px, 4vw, 32px); font-weight: 700;
+    text-wrap: balance; margin-bottom: 28px;
+  }
+  h2 em { font-style: normal; color: var(--naranja); }
+  .grilla { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media (max-width: 720px) { .grilla { grid-template-columns: 1fr; } }
+  .paso {
+    background: var(--panel); border: 1px solid var(--borde);
+    border-radius: 14px; padding: 22px;
+  }
+  .paso .num {
+    display: inline-grid; place-items: center; width: 34px; height: 34px;
+    border-radius: 50%; background: rgba(245,166,35,.15); color: var(--naranja);
+    font-weight: 700; margin-bottom: 14px; border: 1px solid rgba(245,166,35,.4);
+  }
+  .paso h3 { font-size: 18px; margin-bottom: 8px; }
+  .paso p { color: var(--texto2); font-size: 15px; }
+  .paso p b { color: var(--texto); font-weight: 600; }
+
+  /* qué se puede pedir */
+  section.pedidos { padding: 48px 0 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip {
+    border: 1px solid var(--borde); background: var(--panel);
+    border-radius: 999px; padding: 9px 18px; font-size: 15px; color: var(--texto);
+  }
+  .chip b { color: var(--naranja); font-weight: 600; }
+  .nota { color: var(--texto2); font-size: 15px; margin-top: 18px; max-width: 640px; }
+  .nota.destacada {
+    color: var(--naranja); font-size: 17px; font-weight: 600;
+    margin-top: 14px;
+  }
+
+  /* cierre */
+  section.cierre { padding: 64px 0 80px; text-align: center; }
+  .lema {
+    font-size: clamp(22px, 4vw, 30px); font-weight: 700; line-height: 1.3;
+    text-wrap: balance; max-width: 640px; margin: 0 auto 30px;
+  }
+  .lema em { font-style: normal; color: var(--naranja); }
+  .ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .cta {
+    text-decoration: none; border-radius: 999px; padding: 13px 24px;
+    font-weight: 700; font-size: 15px;
+  }
+  .cta.llena { background: var(--naranja); color: #16233a; }
+  .cta.llena:hover, .cta.llena:focus-visible { background: var(--naranja-osc); }
+  .cta.borde { color: var(--texto); border: 1px solid var(--borde); }
+  .cta.borde:hover, .cta.borde:focus-visible { border-color: var(--texto2); }
+
+  footer {
+    border-top: 1px solid var(--borde); padding: 22px 0 34px;
+    color: var(--texto2); font-size: 13px; text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="lienzo">
+    <img src="agente.jpg" alt="Agente PRODIGIUM">
+    <div class="marca">Agente <span style="color:var(--naranja);font-weight:700">PRODIGIUM</span></div>
+    <a class="volver" href="index.html">&larr; Volver a la principal</a>
+  </div>
+</header>
+
+<div class="hero lienzo">
+  <div class="cejilla">Agente PRODIGIUM</div>
+  <h1>Pedile mejoras <em>al Agente</em></h1>
+  <p class="bajada">Los sistemas comunes se quedan como los compraste.
+  El Agente PRODIGIUM <strong>investiga y ejecuta</strong>: le pedís lo
+  que tu negocio necesita, desde adentro del sistema y con tus palabras,
+  y cuando está listo, te avisa.</p>
+</div>
+
+<div class="demo-banda lienzo">
+  <div class="marco">
+    <div class="banda">
+      <img src="agente.jpg" alt="">
+      <div class="frase"><b>Agente PRODIGIUM</b> aprende de tu negocio</div>
+      <div class="boton">&#128238; Pedile mejoras al Agente</div>
+    </div>
+    <div class="charla">
+      <div class="globo pedido">
+        <div class="quien">Vos, desde tu sistema</div>
+        Necesito un m&oacute;dulo exclusivo para control de combustible.
+      </div>
+      <div class="globo agente">
+        <div class="quien">Agente PRODIGIUM</div>
+        Recibido. Lo investigo sobre tus propios datos y te propongo
+        la mejora. <b>Cuando est&eacute; lista, te aviso</b>.
+      </div>
+    </div>
+  </div>
+  <p class="pie-demo">As&iacute; se ve en el sistema: la banda est&aacute; en todas las pantallas del Agente.</p>
+</div>
+
+<section class="pasos lienzo">
+  <h2>C&oacute;mo funciono</h2>
+  <div class="grilla">
+    <div class="paso">
+      <div class="num">1</div>
+      <h3>Pedime desde el sistema</h3>
+      <p>Sin tickets ni mesa de ayuda: abr&iacute;s mi banda naranja y
+      escrib&iacute;s lo que necesit&aacute;s, <b>con tus palabras</b>.
+      Un informe, un cruce, una alerta, un m&oacute;dulo entero.</p>
+    </div>
+    <div class="paso">
+      <div class="num">2</div>
+      <h3>Lo investigo y te propongo la mejora</h3>
+      <p>Tomo tu pedido y me pongo a estudiarlo sobre tus propios datos:
+      qu&eacute; informaci&oacute;n necesito, d&oacute;nde est&aacute; en
+      tu sistema y c&oacute;mo mostr&aacute;rtela. No trabajo sobre un
+      ejemplo de laboratorio: <b>trabajo sobre tu negocio</b>.</p>
+    </div>
+    <div class="paso">
+      <div class="num">3</div>
+      <h3>Cuando est&aacute; listo, te aviso</h3>
+      <p>Yo mismo te aviso dentro del sistema, y tu pedido queda
+      funcionando <b>para siempre</b>. Tu sistema hoy hace m&aacute;s que
+      ayer.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pedidos lienzo">
+  <h2>&iquest;Qu&eacute; me pod&eacute;s pedir?</h2>
+  <div class="chips">
+    <div class="chip">Un <b>informe</b> que hoy arm&aacute;s a mano</div>
+    <div class="chip">Un <b>cruce de datos</b> entre m&oacute;dulos</div>
+    <div class="chip">Una <b>alerta</b>: &ldquo;avisame si&hellip;&rdquo;</div>
+    <div class="chip">Un <b>indicador</b> nuevo para tu dashboard</div>
+    <div class="chip">Un <b>m&oacute;dulo</b> a la medida de tu rubro</div>
+  </div>
+  <p class="nota destacada">Tus necesidades ahora se convierten en
+  proyectos tangibles, al alcance de tu mano.</p>
+</section>
+
+<section class="cierre lienzo">
+  <p class="lema">Vos lo ped&iacute;s. Yo investigo y ejecuto.
+  <em>Tu sistema evoluciona con tu negocio.</em></p>
+  <div class="ctas">
+    <a class="cta llena" href="demo10.mp4" target="_blank" rel="noopener">&#9654; Ver la demo completa (10 min)</a>
+    <a class="cta borde" href="index.html">Conocer LUMEN 360</a>
+  </div>
+</section>
+
+<footer>LUMEN 360 &mdash; Suite de gesti&oacute;n + Agente PRODIGIUM</footer>
+
+</body>
+</html>
